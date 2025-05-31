@@ -27,9 +27,11 @@ export interface Member {
   phone: string;
   avatar?: string;
   membershipId: string;
+  trainerId?: string;
   joinDate: string;
   status: 'active' | 'inactive' | 'pending';
-  memberId: string; // Unique member ID for check-in
+  memberId: string;
+  expiryDate?: string;
 }
 
 export interface Trainer {
@@ -42,7 +44,8 @@ export interface Trainer {
   experience: string;
   joinDate: string;
   status: 'active' | 'inactive';
-  trainerId: string; // Unique trainer ID
+  trainerId: string;
+  assignedMembers?: string[];
 }
 
 export interface Membership {
@@ -62,7 +65,7 @@ export interface Attendance {
   checkIn: string;
   checkOut: string | null;
   duration?: number;
-  uniqueId: string; // Member's unique ID used for check-in
+  uniqueId: string;
 }
 
 export interface DashboardSummary {
@@ -70,11 +73,15 @@ export interface DashboardSummary {
   activeMembers: number;
   newMembersToday: number;
   checkedInToday: number;
+  expiredMembers: number;
+  expiringMembers: number;
   membershipStats: {
     name: string;
     value: number;
   }[];
   recentAttendance: Attendance[];
+  expiredMembersList: Member[];
+  expiringMembersList: Member[];
 }
 
 export interface AdminStats {

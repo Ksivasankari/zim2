@@ -68,7 +68,8 @@ export const trainers: Trainer[] = [
     experience: '5 years',
     joinDate: subMonths(new Date(), 2).toISOString(),
     status: 'active',
-    trainerId: 'TR001'
+    trainerId: 'TR001',
+    assignedMembers: ['1', '2']
   },
   {
     id: '2',
@@ -79,7 +80,8 @@ export const trainers: Trainer[] = [
     experience: '7 years',
     joinDate: subMonths(new Date(), 8).toISOString(),
     status: 'active',
-    trainerId: 'TR002'
+    trainerId: 'TR002',
+    assignedMembers: ['3']
   },
   {
     id: '3',
@@ -101,9 +103,11 @@ export const members: Member[] = [
     email: 'emma@example.com',
     phone: '(555) 123-4567',
     membershipId: '3',
+    trainerId: '1',
     joinDate: subMonths(new Date(), 6).toISOString(),
     status: 'active',
-    memberId: 'MEM001'
+    memberId: 'MEM001',
+    expiryDate: addDays(new Date(), 5).toISOString()
   },
   {
     id: '2',
@@ -111,9 +115,11 @@ export const members: Member[] = [
     email: 'james@example.com',
     phone: '(555) 987-6543',
     membershipId: '2',
+    trainerId: '1',
     joinDate: subMonths(new Date(), 2).toISOString(),
     status: 'active',
-    memberId: 'MEM002'
+    memberId: 'MEM002',
+    expiryDate: subDays(new Date(), 2).toISOString()
   },
   {
     id: '3',
@@ -121,9 +127,11 @@ export const members: Member[] = [
     email: 'olivia@example.com',
     phone: '(555) 456-7890',
     membershipId: '4',
+    trainerId: '2',
     joinDate: subMonths(new Date(), 10).toISOString(),
     status: 'active',
-    memberId: 'MEM003'
+    memberId: 'MEM003',
+    expiryDate: addDays(new Date(), 15).toISOString()
   },
   {
     id: '4',
@@ -133,7 +141,8 @@ export const members: Member[] = [
     membershipId: '1',
     joinDate: subDays(new Date(), 5).toISOString(),
     status: 'pending',
-    memberId: 'MEM004'
+    memberId: 'MEM004',
+    expiryDate: subDays(new Date(), 5).toISOString()
   },
   {
     id: '5',
@@ -143,7 +152,8 @@ export const members: Member[] = [
     membershipId: '2',
     joinDate: subMonths(new Date(), 1).toISOString(),
     status: 'active',
-    memberId: 'MEM005'
+    memberId: 'MEM005',
+    expiryDate: subDays(new Date(), 1).toISOString()
   },
   {
     id: '6',
@@ -153,7 +163,8 @@ export const members: Member[] = [
     membershipId: '1',
     joinDate: subDays(new Date(), 20).toISOString(),
     status: 'inactive',
-    memberId: 'MEM006'
+    memberId: 'MEM006',
+    expiryDate: addDays(new Date(), 10).toISOString()
   },
 ];
 
@@ -208,11 +219,22 @@ export const recentAttendance: Attendance[] = [
   },
 ];
 
+// Get expired and expiring members
+const expiredMembers = members.filter(m => new Date(m.expiryDate!) < new Date());
+const expiringMembers = members.filter(m => {
+  const expiryDate = new Date(m.expiryDate!);
+  const today = new Date();
+  const daysUntilExpiry = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  return daysUntilExpiry > 0 && daysUntilExpiry <= 15;
+});
+
 export const dashboardSummary: DashboardSummary = {
   totalMembers: members.length,
   activeMembers: members.filter(m => m.status === 'active').length,
   newMembersToday: 1,
   checkedInToday: todayAttendance.length,
+  expiredMembers: expiredMembers.length,
+  expiringMembers: expiringMembers.length,
   membershipStats: [
     { name: 'Basic', value: members.filter(m => m.membershipId === '1').length },
     { name: 'Standard', value: members.filter(m => m.membershipId === '2').length },
@@ -220,6 +242,8 @@ export const dashboardSummary: DashboardSummary = {
     { name: 'Annual', value: members.filter(m => m.membershipId === '4').length },
   ],
   recentAttendance: recentAttendance.slice(0, 5),
+  expiredMembersList: expiredMembers,
+  expiringMembersList: expiringMembers,
 };
 
 // Helper function
