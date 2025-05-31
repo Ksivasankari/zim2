@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Filter, Edit, Trash2, UserPlus } from 'lucide-react';
+import { Search, Filter, Edit, Trash2, UserPlus, ExternalLink } from 'lucide-react';
 import { Member, Trainer } from '../../types';
 import { members, trainers, memberships } from '../../data/mockData';
 import { formatDate } from '../../lib/utils';
@@ -11,10 +11,10 @@ import Badge from '../ui/Badge';
 const MemberList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
-  const [showMembers, setShowMembers] = useState(true);
-  const [showTrainers, setShowTrainers] = useState(true);
+  const [membersList, setMembersList] = useState(members);
+  const [trainersList, setTrainersList] = useState(trainers);
   
-  const filteredMembers = members.filter((member) => {
+  const filteredMembers = membersList.filter((member) => {
     const matchesSearch =
       member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -26,7 +26,7 @@ const MemberList: React.FC = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const filteredTrainers = trainers.filter((trainer) => {
+  const filteredTrainers = trainersList.filter((trainer) => {
     const matchesSearch =
       trainer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       trainer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -56,9 +56,22 @@ const MemberList: React.FC = () => {
     }
   };
 
-  const handleDelete = (type: 'member' | 'trainer', id: string) => {
-    // In a real app, this would call an API
-    console.log(`Delete ${type} with ID:`, id);
+  const handleDeleteMember = (id: string) => {
+    if (confirm('Are you sure you want to delete this member?')) {
+      setMembersList(prev => prev.filter(member => member.id !== id));
+    }
+  };
+
+  const handleDeleteTrainer = (id: string) => {
+    if (confirm('Are you sure you want to delete this trainer?')) {
+      setTrainersList(prev => prev.filter(trainer => trainer.id !== id));
+    }
+  };
+
+  const handleWhatsAppMessage = (phone: string, name: string) => {
+    const message = `Hi ${name}, this is a message from your gym.`;
+    const whatsappUrl = `https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   };
 
   return (
@@ -140,13 +153,20 @@ const MemberList: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleWhatsAppMessage(member.phone, member.name)}
+                      >
+                        <ExternalLink size={16} />
+                      </Button>
                       <Link to={`/members/${member.id}`}>
                         <Button variant="outline" size="sm">View</Button>
                       </Link>
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => handleDelete('member', member.id)}
+                        onClick={() => handleDeleteMember(member.id)}
                       >
                         <Trash2 size={16} className="text-red-500" />
                       </Button>
@@ -226,13 +246,20 @@ const MemberList: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleWhatsAppMessage(trainer.phone, trainer.name)}
+                      >
+                        <ExternalLink size={16} />
+                      </Button>
                       <Link to={`/trainers/${trainer.id}`}>
                         <Button variant="outline" size="sm">View</Button>
                       </Link>
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => handleDelete('trainer', trainer.id)}
+                        onClick={() => handleDeleteTrainer(trainer.id)}
                       >
                         <Trash2 size={16} className="text-red-500" />
                       </Button>
